@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lönerapport Norge - Ekonomernas Hus</title>
+  
+  <!-- xlsx-js-style för layoutad Excel med formler och stilar -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+  
+  <style>
+    :root {
+      --primary: #111827;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --table-header-bg: #475569;
+      --danger: #dc2626;
+      --success: #16a34a;
+      --success-hover: #15803d;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: #1e293b;
+      padding: 24px 16px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      padding: 32px;
+    }
+
+    /* Header med logotyp */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 24px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo-container {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .logo-badge {
+      display: inline-flex;
+      flex-direction: column;
+    }
+
+    .logo-box {
+      display: flex;
+      align-items: stretch;
+      border: 2.5px solid #111;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+    }
+
+    .logo-main-text {
+      background: #fff;
+      color: #111;
+      padding: 6px 14px;
+      font-size: 20px;
+      text-transform: uppercase;
+      font-family: Arial, sans-serif;
+      font-weight: 900;
+      border-right: 2.5px solid #111;
+    }
+
+    .logo-house-section {
+      background: #111;
+      color: #fff;
+      padding: 6px 12px;
+      font-size: 18px;
+      letter-spacing: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .logo-roof {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 14px solid transparent;
+      border-right: 14px solid transparent;
+      border-bottom: 11px solid #111;
+    }
+
+    .logo-subline {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-top: 4px;
+      font-size: 11px;
+      color: #475569;
+      font-weight: 600;
+    }
+
+    .logo-subline span.accru {
+      color: #111;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: -0.5px;
+    }
+
+    .header-titles h1 {
+      font-size: 22px;
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    .header-titles p {
+      font-size: 14px;
+      color: #64748b;
+    }
+
+    .notice-card {
+      background-color: #f0f9ff;
+      border-left: 4px solid #0284c7;
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      border-radius: 4px;
+      font-size: 13.5px;
+      color: #0369a1;
+      line-height: 1.6;
+    }
+
+    .notice-card strong {
+      color: #0c4a6e;
+    }
+
+    /* Kryssruta: Inget att rapportera */
+    .zero-report-banner {
+      background: #fdf2f8;
+      border: 1.5px solid #fbcfe8;
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+    }
+
+    .zero-report-banner input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: #be185d;
+    }
+
+    .zero-report-banner label {
+      font-weight: 600;
+      color: #9d174d;
+      font-size: 15px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-bottom: 28px;
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .form-control {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+      background: #fff;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-control:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .form-control::placeholder {
+      color: #94a3b8;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+      margin-bottom: 24px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      transition: opacity 0.2s;
+    }
+
+    .table-responsive.disabled-section {
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 960px;
+      background: #fff;
+    }
+
+    th {
+      background-color: var(--table-header-bg);
+      color: #ffffff;
+      padding: 12px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: left;
+      vertical-align: top;
+      border-right: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    th:last-child {
+      border-right: none;
+    }
+
+    .th-sub {
+      font-size: 11px;
+      font-weight: 400;
+      display: block;
+      margin-top: 4px;
+      color: #cbd5e1;
+      line-height: 1.3;
+    }
+
+    td {
+      padding: 8px 10px;
+      border-top: 1px solid #e2e8f0;
+      border-right: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+
+    td:last-child {
+      border-right: none;
+    }
+
+    tbody tr:hover {
+      background-color: #f8fafc;
+    }
+
+    .input-cell {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .input-cell:focus {
+      border-color: var(--accent);
+    }
+
+    .input-cell::placeholder {
+      color: #94a3b8;
+    }
+
+    .cell-inline {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .select-sm {
+      padding: 8px 6px;
+      font-size: 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      background: #fff;
+    }
+
+    .btn-delete {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 4px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-delete:hover {
+      color: var(--danger);
+      background-color: #fee2e2;
+    }
+
+    .button-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 22px;
+      border-radius: 6px;
+      font-size: 14.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    .btn-primary {
+      background: var(--success);
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(22, 163, 74, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: var(--success-hover);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .status-msg {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      display: none;
+    }
+
+    .status-success {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .status-error {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .security-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <header>
+      <div class="brand">
+        <div class="logo-container">
+          <div class="logo-badge">
+            <div class="logo-box">
+              <div class="logo-main-text">EKONOMERNAS</div>
+              <div class="logo-house-section">
+                <div class="logo-roof"></div>
+                H u s
+              </div>
+            </div>
+            <div class="logo-subline">
+              En del av <span class="accru">accru partners</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="header-titles">
+        <h1>Svensk lön avseende arbete i Norge</h1>
+        <p>Säker portal för löneunderlag och skatteredovisning</p>
+      </div>
+    </header>
+
+    <div class="notice-card">
+      <strong>Viktig information om personuppgifter & skatt:</strong><br>
+      • Svenskt personnummer används bara om Norsk D-/P-nummer saknas.<br>
+      • Alla anställda som arbetar och deklarerar skatt i Norge måste ha ett skattekort och ett D-nummer.<br>
+      • Inlämningen krypteras och sparas direkt i Ekonomernas Hus säkra SharePoint. Inga uppgifter skickas via e-post.
+    </div>
+
+    <!-- KRYSSRUTA FÖR KUNDER UTAN NÅGOT ATT RAPPORTERA -->
+    <div class="zero-report-banner" onclick="toggleZeroReport(event)">
+      <input type="checkbox" id="nothingToReport" onchange="toggleZeroReport(event)">
+      <label for="nothingToReport">
+        Vi har inga anställda att rapportera för den här perioden (intyga nollrapport)
+      </label>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="companyName">Företagsnamn *</label>
+        <input type="text" id="companyName" class="form-control" placeholder="T.ex. Exempelbolaget AB" required>
+      </div>
+      <div class="form-group">
+        <label for="period">Period för upptjäning / utbetalning</label>
+        <input type="text" id="period" class="form-control" placeholder="T.ex. Upptjänad i juli eller augusti, utbetald i augusti">
+      </div>
+    </div>
+
+    <div id="tableSection" class="table-responsive">
+      <table id="employeeTable">
+        <thead>
+          <tr>
+            <th style="width: 20%;">Den anställdas namn</th>
+            <th style="width: 17%;">
+              Norsk D-/P-nummer
+              <span class="th-sub">(Svenskt P-nr om D-nr saknas)</span>
+            </th>
+            <th style="width: 17%;">
+              Lön mnd/timme
+              <span class="th-sub">Belopp samt mnd el. timme</span>
+            </th>
+            <th style="width: 14%;">
+              Tid dagar/timmar
+              <span class="th-sub">Antal dagar eller timmar</span>
+            </th>
+            <th style="width: 12%;">
+              Evt. utrikestraktamente
+              <span class="th-sub">Antal dagar (t.ex. 1,5)</span>
+            </th>
+            <th style="width: 18%;">
+              RF-1199 & 270-dagarsregel
+              <span class="th-sub">Rapporterad? Risk för >270 dgr/36 mån?</span>
+            </th>
+            <th style="width: 36px; text-align: center;"></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="button-bar">
+      <button type="button" id="btnAddRow" class="btn btn-secondary" onclick="addRow()">
+        ➕ Lägg till anställd
+      </button>
+
+      <div style="display: flex; gap: 10px;">
+        <button type="button" class="btn btn-secondary" onclick="exportToExcel(false)">
+          📄 Ladda ner kopia lokalt
+        </button>
+        <button type="button" id="btnSubmit" class="btn btn-primary" onclick="exportToExcel(true)">
+          🔒 Skicka in säkert till Ekonomernas Hus
+        </button>
+      </div>
+    </div>
+
+    <div id="statusMessage" class="status-msg"></div>
+
+    <div class="security-badge">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+      GDPR-säkrad: Överföringen sker via krypterat API direkt till företagets molnlagring.
+    </div>
+
+  </div>
+
+  <script>
+    // KLISTRA IN ER POWER AUTOMATE HTTP POST-URL HÄR
+    const POWER_AUTOMATE_URL = "https://prod-XX.westeurope.logic.azure.com:443/workflows/XXXXX/triggers/manual/paths/invoke?...";
+
+    function toggleZeroReport(e) {
+      if (e.target.tagName !== 'INPUT') {
+        const cb = document.getElementById('nothingToReport');
+        cb.checked = !cb.checked;
+      }
+      const isZero = document.getElementById('nothingToReport').checked;
+      const tableSection = document.getElementById('tableSection');
+      const btnAddRow = document.getElementById('btnAddRow');
+
+      if (isZero) {
+        tableSection.classList.add('disabled-section');
+        btnAddRow.disabled = true;
+      } else {
+        tableSection.classList.remove('disabled-section');
+        btnAddRow.disabled = false;
+      }
+    }
+
+    function createRow(data = {}) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input type="text" class="input-cell emp-name" placeholder="För- och efternamn" value="${data.name || ''}"></td>
+        <td><input type="text" class="input-cell emp-id" placeholder="11 siffror / ÅÅMMDD-XXXX" value="${data.id || ''}"></td>
+        <td>
+          <div class="cell-inline">
+            <input type="number" step="0.01" class="input-cell emp-salary" placeholder="Belopp" value="${data.salary || ''}">
+            <select class="select-sm emp-salary-type">
+              <option value="timme">/timme</option>
+              <option value="mnd">/mnd</option>
+            </select>
+          </div>
+        </td>
+        <td>
+          <div class="cell-inline">
+            <input type="number" step="0.01" class="input-cell emp-time" placeholder="Antal" value="${data.time || ''}">
+            <select class="select-sm emp-time-type">
+              <option value="timmar">timmar</option>
+              <option value="dagar">dagar</option>
+            </select>
+          </div>
+        </td>
+        <td><input type="number" step="0.01" class="input-cell emp-allowance" placeholder="Dagar (t.ex. 1,5)" value="${data.allowance || ''}"></td>
+        <td>
+          <select class="input-cell emp-rf">
+            <option value="RF-1199 ej rapporterad. Finns ingen risk för att anställd kommer befinna sig i Norge i mer än 270 dygn per 36 månader.">Ej rapporterad / Ingen risk</option>
+            <option value="RF-1199 rapporterad. Finns ingen risk för att anställd kommer befinna sig i Norge i mer än 270 dygn per 36 månader.">Rapporterad / Ingen risk</option>
+            <option value="RF-1199 rapporterad. Finns risk för att anställd kan överskrida 270 dygn.">Rapporterad / Risk finns</option>
+            <option value="RF-1199 ej rapporterad. Finns risk för att anställd kan överskrida 270 dygn.">Ej rapporterad / Risk finns</option>
+          </select>
+        </td>
+        <td style="text-align: center;">
+          <button type="button" class="btn-delete" title="Ta bort rad" onclick="deleteRow(this)">✕</button>
+        </td>
+      `;
+      return tr;
+    }
+
+    function addRow(data) {
+      document.getElementById('tableBody').appendChild(createRow(data));
+    }
+
+    function deleteRow(btn) {
+      const tbody = document.getElementById('tableBody');
+      if (tbody.rows.length > 1) {
+        btn.closest('tr').remove();
+      } else {
+        alert("Formuläret måste ha minst en rad.");
+      }
+    }
+
+    window.onload = function() {
+      for (let i = 0; i < 3; i++) addRow();
+    };
+
+    async function exportToExcel(sendDirectly = true) {
+      const company = document.getElementById('companyName').value.trim();
+      const statusBox = document.getElementById('statusMessage');
+      const isZeroReport = document.getElementById('nothingToReport').checked;
+
+      statusBox.style.display = 'none';
+
+      if (!company) {
+        alert("Vänligen fyll i Företagsnamn.");
+        document.getElementById('companyName').focus();
+        return;
+      }
+
+      const period = document.getElementById('period').value.trim();
+      const periodDisplay = period ? period : "Specificerad period";
+      const rows = document.querySelectorAll('#tableBody tr');
+
+      const borderThin = {
+        top: { style: "thin", color: { rgb: "000000" } },
+        bottom: { style: "thin", color: { rgb: "000000" } },
+        left: { style: "thin", color: { rgb: "000000" } },
+        right: { style: "thin", color: { rgb: "000000" } }
+      };
+
+      const styleTitle = {
+        font: { bold: true, sz: 16, name: "Calibri" },
+        fill: { fgColor: { rgb: "8EA9DB" } },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: borderThin
+      };
+
+      const styleSubHeaderLeft = {
+        font: { bold: true, sz: 11, name: "Calibri" },
+        fill: { fgColor: { rgb: "FFFFFF" } },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: borderThin
+      };
+
+      const styleSubHeaderRight = {
+        font: { bold: true, sz: 11, name: "Calibri" },
+        fill: { fgColor: { rgb: "B4C6E7" } },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: borderThin
+      };
+
+      const styleDarkGrayNote = {
+        font: { italic: true, sz: 9, name: "Calibri" },
+        fill: { fgColor: { rgb: "7F7F7F" } },
+        alignment: { wrapText: true, vertical: "center", horizontal: "center" },
+        border: borderThin
+      };
+
+      const styleLightGrayNote = {
+        font: { italic: true, sz: 9, name: "Calibri" },
+        fill: { fgColor: { rgb: "D9D9D9" } },
+        alignment: { wrapText: true, vertical: "center", horizontal: "center" },
+        border: borderThin
+      };
+
+      const styleColHeader = {
+        font: { italic: true, sz: 9.5, name: "Calibri" },
+        fill: { fgColor: { rgb: "D9D9D9" } },
+        alignment: { wrapText: true, vertical: "center", horizontal: "left" },
+        border: borderThin
+      };
+
+      const styleEconHeader = {
+        font: { bold: true, sz: 10, name: "Calibri", color: { rgb: "1E3A8A" } },
+        fill: { fgColor: { rgb: "DCE6F1" } },
+        alignment: { vertical: "center", horizontal: "center" },
+        border: borderThin
+      };
+
+      const styleDataCell = {
+        font: { sz: 10, name: "Calibri" },
+        border: borderThin,
+        alignment: { vertical: "center" }
+      };
+
+      const styleDataCalc = {
+        font: { sz: 10, name: "Calibri" },
+        fill: { fgColor: { rgb: "F2F5F9" } },
+        border: borderThin,
+        alignment: { vertical: "center", horizontal: "right" }
+      };
+
+      const ws = {};
+
+      for (let c = 0; c < 12; c++) {
+        const ref = XLSX.utils.encode_cell({ r: 0, c: c });
+        ws[ref] = { v: c === 0 ? "Svensk lön avseende arbete i Norge" : "", t: "s", s: styleTitle };
+      }
+
+      const r2Texts = [
+        `FÖRETAGSNAMN: ${company}`, "", 
+        0.9805, 
+        periodDisplay, 
+        1033.447, "", 
+        "Ekonomens kalkyl ->", "", "", "", "", ""
+      ];
+
+      for (let c = 0; c < 12; c++) {
+        const ref = XLSX.utils.encode_cell({ r: 1, c: c });
+        const val = r2Texts[c];
+        const isNum = typeof val === 'number';
+        const st = (c < 2) ? styleSubHeaderLeft : (c < 6 ? styleSubHeaderRight : styleEconHeader);
+        ws[ref] = { v: val, t: isNum ? "n" : "s", s: st };
+      }
+
+      const r3Setup = [
+        { v: "", s: styleDarkGrayNote },
+        { v: "Svensk P-nummer används bara om Norsk D-/P-nummer saknas. Alla som arbetar och deklarerar skatt i Norge måste ha et skattekort och et D-nummer!", s: styleDarkGrayNote },
+        { v: "Valutakurs (kan justeras i C2)", s: styleLightGrayNote },
+        { v: "Ange om det fyllas i mnd eller timme, samt dagar eller timmar", s: styleDarkGrayNote },
+        { v: "Traktamentsats (kan justeras i E2)", s: styleLightGrayNote },
+        { v: "", s: styleDarkGrayNote },
+        { v: "Sv.lön", s: styleEconHeader },
+        { v: "No.lön", s: styleEconHeader },
+        { v: "Timmar", s: styleEconHeader },
+        { v: "Tot.lön", s: styleEconHeader },
+        { v: "Ant.trakt", s: styleEconHeader },
+        { v: "Tot.trakt", s: styleEconHeader }
+      ];
+
+      for (let c = 0; c < 12; c++) {
+        const ref = XLSX.utils.encode_cell({ r: 2, c: c });
+        ws[ref] = { v: r3Setup[c].v, t: "s", s: r3Setup[c].s };
+      }
+
+      const headers = [
+        "Den anställdas namn",
+        "Norsk D-/P-nummer",
+        "Lön mnd/timme",
+        "Tid dagar/timmar",
+        "Evt. utrikestraktamente",
+        "Är den anställda rapporterat på RF-1199? Finns det någon risk för att den anställda kan ha varit i Norge i mer än 270 dygn per 36 månader?",
+        "Grundlön",
+        "Omräknad (NOK)",
+        "Faktiska tim",
+        "Summerad lön",
+        "Trakt.dgr",
+        "Summerat trakt"
+      ];
+
+      for (let c = 0; c < 12; c++) {
+        const ref = XLSX.utils.encode_cell({ r: 3, c: c });
+        ws[ref] = { v: headers[c], t: "s", s: c < 6 ? styleColHeader : styleEconHeader };
+      }
+
+      let validRows = 0;
+
+      if (isZeroReport) {
+        const zeroStyle = {
+          font: { bold: true, sz: 11, color: { rgb: "9D174D" } },
+          fill: { fgColor: { rgb: "FDF2F8" } },
+          border: borderThin,
+          alignment: { vertical: "center" }
+        };
+        for (let c = 0; c < 12; c++) {
+          const ref = XLSX.utils.encode_cell({ r: 4, c: c });
+          ws[ref] = { 
+            v: c === 0 ? "FÖRETAGET INTYGAR: INGET ATT RAPPORTERA FÖR DENNA PERIOD." : "", 
+            t: "s", 
+            s: zeroStyle 
+          };
+        }
+        validRows = 1;
+      } else {
+        rows.forEach((tr) => {
+          const name = tr.querySelector('.emp-name').value.trim();
+          const id = tr.querySelector('.emp-id').value.trim();
+          const salaryVal = parseFloat(tr.querySelector('.emp-salary').value) || 0;
+          const salaryType = tr.querySelector('.emp-salary-type').value;
+          const timeVal = parseFloat(tr.querySelector('.emp-time').value) || 0;
+          const timeType = tr.querySelector('.emp-time-type').value;
+          const allowanceVal = parseFloat(tr.querySelector('.emp-allowance').value) || 0;
+          const rf = tr.querySelector('.emp-rf').value;
+
+          if (name || id || salaryVal || timeVal || allowanceVal) {
+            const r = 4 + validRows;
+            const excelRow = r + 1;
+
+            const rowCells = [
+              { v: name, t: "s", s: styleDataCell },
+              { v: id, t: "s", s: styleDataCell },
+              { v: salaryVal > 0 ? `${salaryVal} ${salaryType}` : '', t: "s", s: styleDataCell },
+              { v: timeVal > 0 ? `${timeVal} ${timeType}` : '', t: "s", s: styleDataCell },
+              { v: allowanceVal > 0 ? allowanceVal : '', t: allowanceVal > 0 ? "n" : "s", s: styleDataCell },
+              { v: rf, t: "s", s: styleDataCell },
+              { v: salaryVal, t: "n", s: styleDataCalc, z: "#,##0.00" },
+              { f: `G${excelRow}*$C$2`, t: "n", s: styleDataCalc, z: "#,##0.00" },
+              { v: timeVal, t: "n", s: styleDataCalc, z: "#,##0.00" },
+              { f: `H${excelRow}*I${excelRow}`, t: "n", s: styleDataCalc, z: "#,##0.00" },
+              { v: allowanceVal, t: "n", s: styleDataCalc, z: "#,##0.00" },
+              { f: `K${excelRow}*$E$2`, t: "n", s: styleDataCalc, z: "#,##0.00" }
+            ];
+
+            for (let c = 0; c < 12; c++) {
+              const ref = XLSX.utils.encode_cell({ r: r, c: c });
+              ws[ref] = rowCells[c];
+            }
+            validRows++;
+          }
+        });
+
+        if (validRows === 0) {
+          alert("Vänligen fyll i minst en anställd eller kryssa i 'Vi har inga anställda att rapportera'.");
+          return;
+        }
+      }
+
+      const totalRows = 4 + validRows;
+      ws['!ref'] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: totalRows - 1, c: 11 } });
+
+      ws['!merges'] = [
+        { s: { r: 0, c: 0 }, e: { r: 0, c: 5 } },
+        { s: { r: 1, c: 0 }, e: { r: 1, c: 1 } },
+        { s: { r: 1, c: 3 }, e: { r: 1, c: 5 } }
+      ];
+
+      if (isZeroReport) {
+        ws['!merges'].push({ s: { r: 4, c: 0 }, e: { r: 4, c: 11 } });
+      }
+
+      ws['!cols'] = [
+        { wch: 22 }, { wch: 18 }, { wch: 16 }, { wch: 15 }, { wch: 22 }, { wch: 58 },
+        { wch: 12 }, { wch: 12 }, { wch: 10 }, { wch: 14 }, { wch: 10 }, { wch: 14 }
+      ];
+
+      ws['!rows'] = [
+        { hpt: 30 }, { hpt: 24 }, { hpt: 46 }, { hpt: 38 }
+      ];
+
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Lön Norge");
+
+      const cleanCompany = company.replace(/[^a-zA-Z0-9åäöÅÄÖ]/g, "_");
+      const filename = isZeroReport 
+        ? `Svensk_lon_Norge_${cleanCompany}_NOLLRAPPORT.xlsx`
+        : `Svensk_lon_Norge_${cleanCompany}.xlsx`;
+
+      if (!sendDirectly) {
+        XLSX.writeFile(wb, filename);
+        return;
+      }
+
+      const btnSubmit = document.getElementById('btnSubmit');
+      btnSubmit.disabled = true;
+      btnSubmit.innerText = "⏳ Skickar säkert...";
+
+      try {
+        const base64File = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
+
+        const response = await fetch(POWER_AUTOMATE_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            company: company,
+            period: periodDisplay,
+            hasNothingToReport: isZeroReport,
+            filename: filename,
+            fileContent: base64File
+          })
+        });
+
+        if (response.ok) {
+          statusBox.className = "status-msg status-success";
+          statusBox.innerHTML = `✅ <strong>Klart!</strong> Ert underlag för <strong>${company}</strong> har tagits emot och sparats säkert hos Ekonomernas Hus. Ni behöver inte göra något mer.`;
+          statusBox.style.display = 'block';
+        } else {
+          throw new Error("HTTP error " + response.status);
+        }
+      } catch (err) {
+        console.error("Överföringsfel:", err);
+        statusBox.className = "status-msg status-error";
+        statusBox.innerHTML = `⚠️ <strong>Överföringen misslyckades:</strong> Kunde inte ansluta till SharePoint. Klicka på knappen "Ladda ner kopia lokalt" ovan och kontakta din kontaktperson.`;
+        statusBox.style.display = 'block';
+      } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.innerText = "🔒 Skicka in säkert till Ekonomernas Hus";
+      }
+    }
+  </script>
+</body>
+</html>
