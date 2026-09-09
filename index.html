@@ -853,6 +853,8 @@
       ];
 
       const wb = XLSX.utils.book_new();
+      wb.Workbook = wb.Workbook || {};
+      wb.Workbook.CalcPr = { fullCalcOnLoad: true };
       XLSX.utils.book_append_sheet(wb, ws, "Lön Norge");
 
       const cleanCompany = company.replace(/[^a-zA-Z0-9åäöÅÄÖ]/g, "_");
