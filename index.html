@@ -45,7 +45,6 @@
       padding: 32px;
     }
 
-    /* Header med logotyp */
     header {
       display: flex;
       justify-content: space-between;
@@ -529,7 +528,7 @@
 
   <script>
     // KLISTRA IN ER POWER AUTOMATE HTTP POST-URL HÄR
-    const POWER_AUTOMATE_URL = "https://prod-XX.westeurope.logic.azure.com:443/workflows/XXXXX/triggers/manual/paths/invoke?...";
+    const POWER_AUTOMATE_URL = "KLISTRA_IN_DIN_POWER_AUTOMATE_URL_HÄR";
 
     function toggleZeroReport(e) {
       if (e.target.tagName !== 'INPUT') {
@@ -678,6 +677,13 @@
         border: borderThin
       };
 
+      const styleValueCell = {
+        font: { bold: true, sz: 11, name: "Calibri" },
+        fill: { fgColor: { rgb: "FFFFFF" } },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: borderThin
+      };
+
       const styleDataCell = {
         font: { sz: 10, name: "Calibri" },
         border: borderThin,
@@ -700,26 +706,34 @@
 
       const r2Texts = [
         `FÖRETAGSNAMN: ${company}`, "", 
-        0.9805, 
+        "", 
         periodDisplay, 
-        1033.447, "", 
-        "Ekonomens kalkyl ->", "", "", "", "", ""
+        "", "", 
+        "Valuta", 0.9805, "", "", "Trakt", 1033.447
+      ];
+
+      const r2Styles = [
+        styleSubHeaderLeft, styleSubHeaderLeft,
+        styleSubHeaderLeft,
+        styleSubHeaderRight, styleSubHeaderRight, styleSubHeaderRight,
+        styleEconHeader, styleValueCell,
+        styleSubHeaderLeft, styleSubHeaderLeft,
+        styleEconHeader, styleValueCell
       ];
 
       for (let c = 0; c < 12; c++) {
         const ref = XLSX.utils.encode_cell({ r: 1, c: c });
         const val = r2Texts[c];
         const isNum = typeof val === 'number';
-        const st = (c < 2) ? styleSubHeaderLeft : (c < 6 ? styleSubHeaderRight : styleEconHeader);
-        ws[ref] = { v: val, t: isNum ? "n" : "s", s: st };
+        ws[ref] = { v: val, t: isNum ? "n" : "s", s: r2Styles[c] };
       }
 
       const r3Setup = [
         { v: "", s: styleDarkGrayNote },
         { v: "Svensk P-nummer används bara om Norsk D-/P-nummer saknas. Alla som arbetar och deklarerar skatt i Norge måste ha et skattekort och et D-nummer!", s: styleDarkGrayNote },
-        { v: "Valutakurs (kan justeras i C2)", s: styleLightGrayNote },
+        { v: "Valutakurs kan justeras i H2", s: styleLightGrayNote },
         { v: "Ange om det fyllas i mnd eller timme, samt dagar eller timmar", s: styleDarkGrayNote },
-        { v: "Traktamentsats (kan justeras i E2)", s: styleLightGrayNote },
+        { v: "Traktamentsats kan justeras i L2", s: styleLightGrayNote },
         { v: "", s: styleDarkGrayNote },
         { v: "Sv.lön", s: styleEconHeader },
         { v: "No.lön", s: styleEconHeader },
@@ -795,11 +809,11 @@
               { v: allowanceVal > 0 ? allowanceVal : '', t: allowanceVal > 0 ? "n" : "s", s: styleDataCell },
               { v: rf, t: "s", s: styleDataCell },
               { v: salaryVal, t: "n", s: styleDataCalc, z: "#,##0.00" },
-              { f: `G${excelRow}*$C$2`, t: "n", s: styleDataCalc, z: "#,##0.00" },
+              { f: `$H$2*G${excelRow}`, t: "n", s: styleDataCalc, z: "#,##0.00" },
               { v: timeVal, t: "n", s: styleDataCalc, z: "#,##0.00" },
               { f: `H${excelRow}*I${excelRow}`, t: "n", s: styleDataCalc, z: "#,##0.00" },
               { v: allowanceVal, t: "n", s: styleDataCalc, z: "#,##0.00" },
-              { f: `K${excelRow}*$E$2`, t: "n", s: styleDataCalc, z: "#,##0.00" }
+              { f: `$L$2*K${excelRow}`, t: "n", s: styleDataCalc, z: "#,##0.00" }
             ];
 
             for (let c = 0; c < 12; c++) {
